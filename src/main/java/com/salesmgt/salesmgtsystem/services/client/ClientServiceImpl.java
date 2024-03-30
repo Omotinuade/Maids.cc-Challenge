@@ -6,8 +6,11 @@ import com.salesmgt.salesmgtsystem.dtos.responses.ClientResponse;
 import com.salesmgt.salesmgtsystem.exceptions.SalesMgtException;
 import com.salesmgt.salesmgtsystem.models.Client;
 import com.salesmgt.salesmgtsystem.repositories.ClientRepository;
+import com.salesmgt.salesmgtsystem.services.product.ProductServiceImpl;
 import com.salesmgt.salesmgtsystem.utilities.AppUtils;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +28,8 @@ import static com.salesmgt.salesmgtsystem.utilities.ExceptionUtils.*;
 public class ClientServiceImpl implements ClientService {
 
     private final ClientRepository clientRepository;
+    private final Logger logger = LoggerFactory.getLogger(ProductServiceImpl.class);
+
     @Override
     public List<ClientResponse> findAllClient(int page, int items) {
         Pageable pageable = AppUtils.buildPageRequest(page, items);
@@ -65,6 +70,7 @@ public class ClientServiceImpl implements ClientService {
             existingClient.setEmail(updateRequest.getEmail());
             existingClient.setAddress(updateRequest.getAddress());
             Client updatedClient= clientRepository.save(existingClient);
+            logger.trace("Updated client {}", updatedClient);
             return buildClientResponse(updatedClient);
         } else {
             throw new SalesMgtException(HttpStatus.NOT_FOUND, String.format(NOT_FOUND, CLIENT, id));

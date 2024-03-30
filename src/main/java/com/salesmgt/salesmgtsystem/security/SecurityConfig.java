@@ -1,6 +1,7 @@
 package com.salesmgt.salesmgtsystem.security;
 
 
+import com.salesmgt.salesmgtsystem.enums.Role;
 import com.salesmgt.salesmgtsystem.security.filters.AppAuthenticationFilter;
 import com.salesmgt.salesmgtsystem.security.filters.JwtAuthorizationFilter;
 import com.salesmgt.salesmgtsystem.security.services.JwtService;
@@ -15,6 +16,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import static org.hibernate.cfg.JdbcSettings.USER;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.POST;
 
@@ -35,7 +37,8 @@ public class SecurityConfig {
                 .addFilterBefore(new JwtAuthorizationFilter(jwtService), authenticationFilter.getClass())
                 .authorizeHttpRequests(c->c.requestMatchers(POST,"/api/v1/login", "/api/v1/user")
                         .permitAll()
-                        .requestMatchers(GET, "/api/v1/user").hasAnyAuthority("CLIENT") //"BASIC"
+                        .requestMatchers("/api/v1/sales", "/api/v1/product", "/api/v1/client").hasAnyAuthority(Role.USER.name())
+                        .requestMatchers(GET, "/api/v1/report*").hasAnyAuthority(Role.USER.name())
                         .anyRequest().authenticated()).build();
     }
 

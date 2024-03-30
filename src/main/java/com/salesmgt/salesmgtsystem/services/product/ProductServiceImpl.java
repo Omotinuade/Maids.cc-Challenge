@@ -5,12 +5,12 @@ import com.salesmgt.salesmgtsystem.dtos.requests.UpdateProductRequest;
 import com.salesmgt.salesmgtsystem.dtos.responses.ProductResponse;
 import com.salesmgt.salesmgtsystem.enums.Category;
 import com.salesmgt.salesmgtsystem.exceptions.SalesMgtException;
-import com.salesmgt.salesmgtsystem.models.Client;
 import com.salesmgt.salesmgtsystem.models.Product;
 import com.salesmgt.salesmgtsystem.repositories.ProductRepository;
 import com.salesmgt.salesmgtsystem.utilities.AppUtils;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -20,7 +20,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static com.salesmgt.salesmgtsystem.utilities.AppUtils.CLIENT;
 import static com.salesmgt.salesmgtsystem.utilities.AppUtils.PRODUCT;
 import static com.salesmgt.salesmgtsystem.utilities.ExceptionUtils.*;
 
@@ -30,6 +29,7 @@ import static com.salesmgt.salesmgtsystem.utilities.ExceptionUtils.*;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final Logger logger = LoggerFactory.getLogger(ProductServiceImpl.class);
 
     @Override
     public List<ProductResponse> findAllProducts(int page, int items) {
@@ -58,11 +58,12 @@ public class ProductServiceImpl implements ProductService {
         product.setCategory(Category.fromString(registerRequest.getCategory()));
         product.setPrice(registerRequest.getPrice());
         Product savedProduct= productRepository.save(product);
+        logger.trace("Product saved: {}", savedProduct);
         if(savedProduct.getId()==null) throw new SalesMgtException(HttpStatus.INTERNAL_SERVER_ERROR, String.format(REGISTRATION_FAILED,PRODUCT));
         return buildProductResponse(savedProduct);
     }
     void checkProductExists(String productName) throws SalesMgtException {
-        Optional<Product> existingProduct = productRepository.findByProductName(productName);
+        Optional<Product> existingProduct = productRepository.findByName(productName);
         if (existingProduct.isPresent()) {
             throw new SalesMgtException(HttpStatus.BAD_REQUEST,String.format(ALREADY_EXISTING,PRODUCT,productName));
         }
@@ -87,6 +88,7 @@ public class ProductServiceImpl implements ProductService {
             existingProduct.setPrice(updateRequest.getPrice());
             existingProduct.setLastModifiedDate(LocalDateTime.now());
             Product updatedProduct= productRepository.save(existingProduct);
+            logger.trace("Updated product {}", updatedProduct);
             return buildProductResponse(updatedProduct);
         } else {
             throw new SalesMgtException(HttpStatus.NOT_FOUND,String.format(NOT_FOUND, PRODUCT, id));

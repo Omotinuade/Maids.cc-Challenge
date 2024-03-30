@@ -1,14 +1,18 @@
 package com.salesmgt.salesmgtsystem.services.sale;
 
 import com.salesmgt.salesmgtsystem.dtos.responses.ProductResponse;
+import com.salesmgt.salesmgtsystem.dtos.responses.SalesReport;
 import com.salesmgt.salesmgtsystem.exceptions.SalesMgtException;
 import com.salesmgt.salesmgtsystem.models.Product;
 import com.salesmgt.salesmgtsystem.models.Sale;
 import com.salesmgt.salesmgtsystem.models.SaleItem;
 import com.salesmgt.salesmgtsystem.repositories.SaleRepository;
 import com.salesmgt.salesmgtsystem.services.product.ProductService;
+import com.salesmgt.salesmgtsystem.services.product.ProductServiceImpl;
 import com.salesmgt.salesmgtsystem.utilities.AppUtils;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -17,7 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.salesmgt.salesmgtsystem.utilities.AppUtils.PRODUCT;
 import static com.salesmgt.salesmgtsystem.utilities.AppUtils.SALE;
@@ -30,6 +36,9 @@ public class SaleServiceImpl implements SaleService{
     public final SaleRepository saleRepository;
 
     private final ProductService productService;
+
+    private final Logger logger = LoggerFactory.getLogger(ProductServiceImpl.class);
+
 
     @Override
     public List<Sale> getAllSales(int page, int items) {
@@ -59,6 +68,7 @@ public class SaleServiceImpl implements SaleService{
         }
         sale.setTotal(total);
         sale.setCreationDate(LocalDateTime.now());
+        logger.trace("new sale: {}", sale);
         return saleRepository.save(sale);
     }
 
@@ -83,4 +93,20 @@ public class SaleServiceImpl implements SaleService{
         sale.orElseThrow(()->new SalesMgtException(HttpStatus.NOT_FOUND, String.format(NOT_FOUND, SALE, id)));
         saleRepository.delete(sale.get());
     }
+//
+//    @Override
+//    public SalesReport generateSalesReport(LocalDateTime startDate, LocalDateTime endDate) {
+//        List<Sale> sales = saleRepository.findByCreationDateBetween(startDate, endDate);
+//        SalesReport report = new SalesReport();
+//        report.setTotalRevenue();
+//        report.setTopPerformingSellerId(getTopPerformingSeller(sales));
+//        report.setTotalRevenue();
+//        report.setNumberOfSales(sales.size());
+//        return report;
+//    }
+//
+//    private Long getTopPerformingSeller(List<Sale> sales) {
+//        Map<String, Sale> result = sales.stream()
+//                .collect(Collectors.groupingBy(sasale -> sale.getSeller().getId()));
+//    }
 }

@@ -1,8 +1,10 @@
 package com.salesmgt.salesmgtsystem.services.sale;
 
+import com.salesmgt.salesmgtsystem.dtos.responses.SalesReport;
 import com.salesmgt.salesmgtsystem.exceptions.SalesMgtException;
 import com.salesmgt.salesmgtsystem.models.Sale;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface SaleService {
@@ -11,4 +13,6 @@ public interface SaleService {
     Sale createSale(Sale sale) throws SalesMgtException;
     Sale updateSale(String id, Sale sale);
     void deleteSale(String id) throws SalesMgtException;
+
+//    SalesReport generateSalesReport(LocalDateTime startDate, LocalDateTime endDate);
 }
