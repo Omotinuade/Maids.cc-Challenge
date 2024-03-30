@@ -1,2 +1,4 @@
-package com.salesmgt.salesmgtsystem.security.manager;public class SystemAunthenticationManager {
+package com.salesmgt.salesmgtsystem.security.manager;
+
+public class SystemAunthenticationManager {
 }

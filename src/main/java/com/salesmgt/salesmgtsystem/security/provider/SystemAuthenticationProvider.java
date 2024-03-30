@@ -1,2 +1,4 @@
-package com.salesmgt.salesmgtsystem.security.provider;public class SystemAuthenticationProvider {
+package com.salesmgt.salesmgtsystem.security.provider;
+
+public class SystemAuthenticationProvider {
 }
