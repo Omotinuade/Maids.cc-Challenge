@@ -1,5 +1,6 @@
 package com.salesmgt.salesmgtsystem.services.sale;
 
+import com.salesmgt.salesmgtsystem.dtos.responses.ProductResponse;
 import com.salesmgt.salesmgtsystem.exceptions.SalesMgtException;
 import com.salesmgt.salesmgtsystem.models.Product;
 import com.salesmgt.salesmgtsystem.models.Sale;
@@ -27,7 +28,6 @@ import static com.salesmgt.salesmgtsystem.utilities.ExceptionUtils.NOT_FOUND;
 @Service
 @AllArgsConstructor
 public class SaleServiceImpl implements SaleService{
-
 
     public final SaleRepository saleRepository;
 
@@ -65,15 +65,14 @@ public class SaleServiceImpl implements SaleService{
     }
 
     private void validateSaleItem(SaleItem item) throws SalesMgtException {
-        if (item.getProduct() == null) {
-            throw new SalesMgtException(HttpStatus.BAD_REQUEST, "Product is required for sale item");
-        }
+        if (item.getProduct() == null)throw new SalesMgtException(HttpStatus.BAD_REQUEST, "Product is required for sale item");
+        ProductResponse product = productService.getProduct(item.getProduct().getId());
+        if (product.getId()==null) throw new SalesMgtException(HttpStatus.NOT_FOUND,String.format(NOT_FOUND, PRODUCT, item.getProduct().getId()));
         if (item.getQuantity() <= 0) {
             throw new SalesMgtException(HttpStatus.BAD_REQUEST, "Quantity must be positive");
         }
 
     }
-
 
     @Override
     public Sale updateSale(String id, Sale sale) {

@@ -5,6 +5,7 @@ import com.salesmgt.salesmgtsystem.dtos.requests.UpdateProductRequest;
 import com.salesmgt.salesmgtsystem.dtos.responses.ProductResponse;
 import com.salesmgt.salesmgtsystem.enums.Category;
 import com.salesmgt.salesmgtsystem.exceptions.SalesMgtException;
+import com.salesmgt.salesmgtsystem.models.Client;
 import com.salesmgt.salesmgtsystem.models.Product;
 import com.salesmgt.salesmgtsystem.repositories.ProductRepository;
 import com.salesmgt.salesmgtsystem.utilities.AppUtils;
@@ -21,8 +22,7 @@ import java.util.Optional;
 
 import static com.salesmgt.salesmgtsystem.utilities.AppUtils.CLIENT;
 import static com.salesmgt.salesmgtsystem.utilities.AppUtils.PRODUCT;
-import static com.salesmgt.salesmgtsystem.utilities.ExceptionUtils.NOT_FOUND;
-import static com.salesmgt.salesmgtsystem.utilities.ExceptionUtils.REGISTRATION_FAILED;
+import static com.salesmgt.salesmgtsystem.utilities.ExceptionUtils.*;
 
 
 @Service
@@ -49,6 +49,7 @@ public class ProductServiceImpl implements ProductService {
     }
     @Override
     public ProductResponse createProduct(RegisterProductRequest registerRequest) throws SalesMgtException {
+        checkProductExists(registerRequest.getName());
         Product product = new Product();
         product.setName(registerRequest.getName());
         product.setDescription(registerRequest.getDescription());
@@ -59,6 +60,12 @@ public class ProductServiceImpl implements ProductService {
         Product savedProduct= productRepository.save(product);
         if(savedProduct.getId()==null) throw new SalesMgtException(HttpStatus.INTERNAL_SERVER_ERROR, String.format(REGISTRATION_FAILED,PRODUCT));
         return buildProductResponse(savedProduct);
+    }
+    void checkProductExists(String productName) throws SalesMgtException {
+        Optional<Product> existingProduct = productRepository.findByProductName(productName);
+        if (existingProduct.isPresent()) {
+            throw new SalesMgtException(HttpStatus.BAD_REQUEST,String.format(ALREADY_EXISTING,PRODUCT,productName));
+        }
     }
 
     @Override
